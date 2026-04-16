@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - [Add static code rules](https://github.com/ballerina-platform/ballerina-library/issues/7283)
+- [Allow optional `error?` return type in file listener remote functions](https://github.com/ballerina-platform/ballerina-library/issues/XXXX)
 
 ### Changed
 
