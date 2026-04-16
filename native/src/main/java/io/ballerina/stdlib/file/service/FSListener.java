@@ -25,11 +25,14 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.stdlib.file.utils.FileConstants;
 import io.ballerina.stdlib.file.utils.ModuleUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemEvent;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemListener;
 
@@ -43,6 +46,7 @@ import static io.ballerina.stdlib.file.service.DirectoryListenerConstants.FILE_S
  */
 public class FSListener implements LocalFileSystemListener {
 
+    private static final Logger log = LoggerFactory.getLogger(FSListener.class);
     private Runtime runtime;
     private Map<BObject, Map<String, MethodType>> serviceRegistry = new HashMap<>();
 
@@ -61,7 +65,12 @@ public class FSListener implements LocalFileSystemListener {
                     BObject service  = serviceEntry.getKey();
                     ObjectType type = (ObjectType) TypeUtils.getReferredType(TypeUtils.getType(service));
                     boolean isConcurrentSafe = type.isIsolated() && type.isIsolated(functionName);
-                    runtime.callMethod(service, functionName, new StrandMetadata(isConcurrentSafe, null), balFileEvent);
+                    Object result = runtime.callMethod(service, functionName,
+                            new StrandMetadata(isConcurrentSafe, null), balFileEvent);
+                    if (result instanceof BError error) {
+                        log.error("error returned from the '{}' remote function in file listener service: {}",
+                                functionName, error.getMessage());
+                    }
                 }
             }
         });
