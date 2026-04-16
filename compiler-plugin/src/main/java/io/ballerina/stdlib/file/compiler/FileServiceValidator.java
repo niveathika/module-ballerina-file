@@ -140,13 +140,12 @@ public class FileServiceValidator implements AnalysisTask<SyntaxNodeAnalysisCont
     }
 
     private boolean isErrorOrNilType(Node typeNode) {
-        // Allow `error?` which is an OptionalTypeDescriptorNode wrapping an error type
+        // Only allow `error?` which is an OptionalTypeDescriptorNode wrapping an error type
         if (typeNode.kind() == SyntaxKind.OPTIONAL_TYPE_DESC) {
             Node innerType = ((OptionalTypeDescriptorNode) typeNode).typeDescriptor();
             return innerType.kind() == SyntaxKind.ERROR_TYPE_DESC;
         }
-        // Allow `error` alone as well
-        return typeNode.kind() == SyntaxKind.ERROR_TYPE_DESC;
+        return false;
     }
 
     public boolean isFileService(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
